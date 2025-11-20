@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW Player Prod Test - With Speed & Quality Controls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .instructions {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .instructions h2 {
+            margin-top: 0;
+            color: #FF6C00;
+        }
+        .instructions code {
+            background-color: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .instructions pre {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        #player-container {
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .controls {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #FF6C00;
+            padding-bottom: 10px;
+        }
+        .control-group {
+            margin: 15px 0;
+        }
+        .control-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .controls button {
+            background-color: #FF6C00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .controls button:hover {
+            background-color: #e66100;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .controls button.active {
+            background-color: #009688;
+            box-shadow: 0 0 10px rgba(0,150,136,0.5);
+        }
+        .control-group select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .control-group select:hover {
+            border-color: #FF6C00;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+    <!-- Load the JW Player library from the production build -->
+    <script src="bin-release/jwplayer.js"></script>
+</head>
+<body>
+    <h1>JW Player Prod Test - Enhanced with Speed & Quality Controls</h1>
+
+    <div class="instructions">
+        <h2>Features Included</h2>
+        <ul>
+            <li><strong>Playback Speed Control:</strong> Adjust video speed from 0.25x to 4x</li>
+            <li><strong>Quality Selection:</strong> Switch between different video quality levels (when multiple sources provided)</li>
+            <li><strong>Full API Control:</strong> Play, pause, volume, seek controls</li>
+        </ul>
+        <p><strong>To add your own video with multiple quality levels:</strong></p>
+        <pre>sources: [
+    { file: 'video-4k.mp4', label: '4K', type: 'mp4' },
+    { file: 'video-1080p.mp4', label: '1080p', type: 'mp4' },
+    { file: 'video-720p.mp4', label: '720p', type: 'mp4' },
+    { file: 'video-480p.mp4', label: '480p', type: 'mp4' }
+]</pre>
+    </div>
+
+    <!-- Player Container -->
+    <div id="player-container">Loading the player...</div>
+
+    <div class="controls">
+        <h3>Playback Speed Controls</h3>
+        <div class="control-group">
+            <label>Select Speed:</label>
+            <button onclick="setSpeed(0.25)">0.25x</button>
+            <button onclick="setSpeed(0.5)">0.5x</button>
+            <button onclick="setSpeed(0.75)">0.75x</button>
+            <button onclick="setSpeed(1)" class="active" id="speed-1">1x (Normal)</button>
+            <button onclick="setSpeed(1.25)">1.25x</button>
+            <button onclick="setSpeed(1.5)">1.5x</button>
+            <button onclick="setSpeed(2)">2x</button>
+            <button onclick="setSpeed(3)">3x</button>
+        </div>
+        <div class="status" id="speed-status">Current Speed: 1x</div>
+
+        <h3>Quality Controls</h3>
+        <div class="control-group">
+            <label>Select Quality Level:</label>
+            <select id="quality-selector" onchange="changeQuality()">
+                <option value="0">Auto</option>
+            </select>
+        </div>
+        <div class="status" id="quality-status">Current Quality: Loading...</div>
+
+        <h3>Basic Player Controls</h3>
+        <div class="control-group">
+            <button onclick="player.play()">▶ Play</button>
+            <button onclick="player.pause()">⏸ Pause</button>
+            <button onclick="player.setVolume(Math.min(100, player.getVolume() + 10))">🔊 Volume +</button>
+            <button onclick="player.setVolume(Math.max(0, player.getVolume() - 10))">🔉 Volume -</button>
+            <button onclick="player.seek(0)">⏮ Restart</button>
+            <button onclick="showInfo()">ℹ Info</button>
+        </div>
+    </div>
+
+    <script>
+        // Setup the player with multiple quality sources
+        const player = jwplayer('player-container').setup({
+            // Single test source provided by user
+            sources: [
+                {
+                    file: 'https://arprince.me/assets/video/cursor.mp4',
+                    label: 'Cursor MP4',
+                    type: 'mp4',
+                    default: true
+                }
+            ],
+
+            width: '100%',
+            aspectratio: '16:9',
+            autostart: false,
+            controls: true,
+            mute: false,
+            playbackRateControls: true  // Enable built-in playback rate controls
+        });
+
+        // Playback speed control
+        function setSpeed(rate) {
+            try {
+                player.setPlaybackRate(rate);
+                document.getElementById('speed-status').textContent = `Current Speed: ${rate}x`;
+
+                // Update active button
+                document.querySelectorAll('.control-group button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+
+                console.log(`Playback speed set to ${rate}x`);
+            } catch (error) {
+                console.error('Error setting playback rate:', error);
+                alert('Could not set playback speed. Make sure video is playing.');
+            }
+        }
+
+        // Quality level control
+        function changeQuality() {
+            const select = document.getElementById('quality-selector');
+            const qualityIndex = parseInt(select.value);
+
+            try {
+                player.setCurrentQuality(qualityIndex);
+                const qualities = player.getQualityLevels();
+                const qualityLabel = qualities[qualityIndex]?.label || 'Auto';
+                document.getElementById('quality-status').textContent = `Current Quality: ${qualityLabel}`;
+                console.log(`Quality changed to: ${qualityLabel}`);
+            } catch (error) {
+                console.error('Error changing quality:', error);
+            }
+        }
+
+        // Show player information
+        function showInfo() {
+            const currentQuality = player.getCurrentQuality();
+            const qualities = player.getQualityLevels();
+            const currentSpeed = player.getPlaybackRate() || 1;
+            const position = player.getPosition();
+            const duration = player.getDuration();
+            const volume = player.getVolume();
+
+            const info = `
+Player Information:
+-------------------
+Position: ${Math.floor(position)}s / ${Math.floor(duration)}s
+Playback Speed: ${currentSpeed}x
+Volume: ${volume}%
+Current Quality: ${qualities[currentQuality]?.label || 'N/A'}
+Available Qualities: ${qualities.map(q => q.label).join(', ')}
+            `;
+
+            alert(info);
+            console.log(info);
+        }
+
+        // Listen to player events
+        player.on('ready', () => {
+            console.log('Player is ready!');
+
+            // Populate quality selector
+            const qualities = player.getQualityLevels();
+            const qualitySelector = document.getElementById('quality-selector');
+
+            qualities.forEach((quality, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = quality.label;
+                qualitySelector.appendChild(option);
+            });
+
+            // Set initial quality status
+            const currentQuality = player.getCurrentQuality();
+            const qualityLabel = qualities[currentQuality]?.label || 'Auto';
+            document.getElementById('quality-status').textContent = `Current Quality: ${qualityLabel}`;
+            qualitySelector.value = currentQuality;
+        });
+
+        player.on('play', () => {
+            console.log('Video started playing');
+        });
+
+        player.on('pause', () => {
+            console.log('Video paused');
+        });
+
+        player.on('complete', () => {
+            console.log('Video completed');
+        });
+
+        player.on('error', (event) => {
+            console.error('Player error:', event);
+            alert('Error loading video: ' + event.message);
+        });
+
+        player.on('playbackRateChanged', (event) => {
+            console.log('Playback rate changed to:', event.playbackRate);
+            document.getElementById('speed-status').textContent = `Current Speed: ${event.playbackRate}x`;
+        });
+
+        player.on('levelsChanged', (event) => {
+            const qualities = player.getQualityLevels();
+            const currentQuality = event.currentQuality;
+            const qualityLabel = qualities[currentQuality]?.label || 'Auto';
+            console.log('Quality level changed to:', qualityLabel);
+            document.getElementById('quality-status').textContent = `Current Quality: ${qualityLabel}`;
+        });
+    </script>
+</body>
+</html>
