@@ -656,7 +656,7 @@
                 <h3>🔗 Load Custom Video</h3>
                 <div class="video-source-input">
                     <input type="text" id="video-url" placeholder="Enter video URL (MP4 or M3U8)"
-                           value="https://eu2.contabostorage.com/beede22b78b34cd7b1c01987a4332d1b:meteka/111/index.m3u8">
+                           value="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8">
                     <button onclick="loadCustomVideo()">Load Video</button>
                 </div>
             </div>
@@ -665,7 +665,7 @@
 
     <script>
         // Configuration
-        const DEFAULT_HLS_SOURCE = 'https://eu2.contabostorage.com/beede22b78b34cd7b1c01987a4332d1b:meteka/111/index.m3u8';
+        const DEFAULT_HLS_SOURCE = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
         const AUTO_QUALITY = 'auto';
 
         let player;
@@ -932,10 +932,16 @@
             });
 
             hls.on(Hls.Events.ERROR, (event, data) => {
-                console.error('HLS.js error:', data);
-                if (data.fatal) {
+                const isFatal = data && data.fatal;
+
+                if (isFatal) {
+                    console.error('HLS.js fatal error:', data);
                     emit('error', { message: data.details || 'HLS playback error' });
+                    return;
                 }
+
+                // Non-fatal HLS errors are noisy in the console; log as warnings instead
+                console.warn('HLS.js non-fatal error:', data);
             });
 
             // Video element events
@@ -1148,9 +1154,11 @@
                         await document.exitPictureInPicture();
                     } else if (document.pictureInPictureEnabled) {
                         await video.requestPictureInPicture();
+                    } else {
+                        console.warn('PiP not supported in this environment');
                     }
                 } catch (error) {
-                    console.error('PiP error:', error);
+                    console.warn('PiP request failed:', error);
                 }
             });
 
