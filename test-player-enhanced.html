@@ -941,6 +941,30 @@
             hlsInstance = hls;
             const eventListeners = {};
             let userSelectedQuality = -1; // Track user's manual quality selection (-1 = Auto)
+            let pendingPlayPromise = null;
+
+            // Start playback while gracefully handling AbortError triggered by quick pause/seek
+            const safePlay = () => {
+                if (pendingPlayPromise) {
+                    return pendingPlayPromise;
+                }
+
+                const playAttempt = video.play();
+                if (playAttempt && typeof playAttempt.catch === 'function') {
+                    pendingPlayPromise = playAttempt
+                        .catch(err => {
+                            if (!err || err.name === 'AbortError') {
+                                return;
+                            }
+                            console.error('Playback start failed:', err);
+                        })
+                        .finally(() => {
+                            pendingPlayPromise = null;
+                        });
+                }
+
+                return playAttempt;
+            };
 
             function emit(eventName, data = {}) {
                 (eventListeners[eventName] || []).forEach(cb => cb(data));
@@ -948,7 +972,7 @@
 
             // Create JW Player compatible API
             const api = {
-                play: () => video.play(),
+                play: () => safePlay(),
                 pause: () => video.pause(),
                 setVolume: (volume) => {
                     video.volume = Math.max(0, Math.min(100, volume)) / 100;
@@ -1106,7 +1130,7 @@
 
             function togglePlayPause() {
                 if (video.paused) {
-                    video.play();
+                    api.play();
                     showTapFeedback('play');
                 } else {
                     video.pause();
@@ -1554,7 +1578,7 @@
                     case 'Spacebar': // For older browsers
                         e.preventDefault();
                         if (video.paused) {
-                            video.play();
+                            api.play();
                         } else {
                             video.pause();
                         }
