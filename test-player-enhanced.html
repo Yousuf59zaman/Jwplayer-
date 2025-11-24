@@ -22,8 +22,11 @@
             position: absolute !important;
             bottom: 50px !important;
             right: 10px !important;
-            background: rgba(0, 0, 0, 0.9) !important;
-            border-radius: 4px !important;
+            background: linear-gradient(135deg, rgba(14, 17, 22, 0.96), rgba(12, 20, 30, 0.96)) !important;
+            backdrop-filter: blur(8px) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 2px 12px rgba(0, 0, 0, 0.35) !important;
             min-width: 200px !important;
             max-height: 300px !important;
             overflow-y: auto !important;
@@ -31,11 +34,12 @@
         }
 
         .jw-settings-topbar {
-            padding: 12px 16px !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding: 14px 18px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
             display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
+            gap: 10px !important;
         }
 
         .jw-settings-topbar-text {
@@ -57,26 +61,30 @@
         }
 
         .jw-settings-submenu {
-            padding: 4px 0 !important;
+            padding: 8px !important;
             display: block !important;
         }
 
         .jw-settings-content-item {
-            padding: 10px 16px !important;
+            padding: 12px 14px !important;
             display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
             cursor: pointer !important;
-            transition: background 0.2s !important;
+            gap: 12px !important;
+            border-radius: 10px !important;
+            transition: background 0.2s ease, transform 0.15s ease !important;
         }
 
         .jw-settings-content-item:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            transform: translateY(-1px) !important;
         }
 
         .jw-settings-item-label {
-            color: #fff !important;
+            color: #e8edf5 !important;
             font-size: 13px !important;
+            letter-spacing: 0.01em !important;
         }
 
         .jw-settings-item-active svg {
@@ -130,6 +138,58 @@
         .jw-controlbar > .jw-slider-time .jw-knob {
             width: 10px !important;
             height: 10px !important;
+        }
+
+        /* Center overlays (loader + tap feedback) */
+        .jw-overlay-center {
+            position: absolute !important;
+            inset: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            pointer-events: none !important;
+            z-index: 25 !important;
+        }
+
+        .jw-overlay-center .jw-loader {
+            width: 56px !important;
+            height: 56px !important;
+            border-radius: 50% !important;
+            border: 5px solid rgba(255, 255, 255, 0.25) !important;
+            border-top-color: #fff !important;
+            animation: jw-spin 1s linear infinite !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.2s ease, visibility 0.2s ease !important;
+        }
+
+        .jw-overlay-center .jw-loader.active {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .jw-overlay-center .jw-tap-indicator {
+            background: rgba(0, 0, 0, 0.65) !important;
+            color: #fff !important;
+            padding: 14px 20px !important;
+            border-radius: 999px !important;
+            font-size: 22px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px !important;
+            opacity: 0 !important;
+            transform: scale(0.8) !important;
+            transition: opacity 0.2s ease, transform 0.2s ease !important;
+        }
+
+        .jw-overlay-center .jw-tap-indicator.active {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+
+        @keyframes jw-spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* Button container below progress bar */
@@ -201,35 +261,40 @@
             display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
-            padding: 0 !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding: 14px 18px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
         .jw-settings-tabs {
             display: flex !important;
             flex: 1 !important;
+            gap: 4px !important;
         }
 
         .jw-settings-tab {
             flex: 1 !important;
-            padding: 12px 16px !important;
-            color: rgba(255, 255, 255, 0.6) !important;
+            padding: 10px 12px !important;
+            color: rgba(232, 237, 245, 0.7) !important;
             font-size: 13px !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.01em !important;
             cursor: pointer !important;
-            transition: all 0.2s !important;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease !important;
             border-bottom: 2px solid transparent !important;
             text-align: center !important;
+            border-radius: 10px 10px 0 0 !important;
+            background: rgba(255, 255, 255, 0.02) !important;
         }
 
         .jw-settings-tab:hover {
-            color: rgba(255, 255, 255, 0.9) !important;
-            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06) !important;
         }
 
         .jw-settings-tab.active {
             color: #fff !important;
-            border-bottom-color: #00a8ff !important;
+            border-bottom-color: #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.12) !important;
         }
 
         .jw-settings-topbar-buttons {
@@ -239,6 +304,7 @@
         .jw-settings-content {
             max-height: 300px !important;
             overflow-y: auto !important;
+            padding: 6px 10px 12px !important;
         }
 
         .jw-settings-panel {
@@ -319,29 +385,42 @@
     
         /* Modern Scrollbar Styling for Settings Menu */
         .jw-settings-content::-webkit-scrollbar {
-            width: 6px !important;
+            width: 10px !important;
         }
 
         .jw-settings-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border-radius: 3px !important;
+            background: transparent !important;
         }
 
         .jw-settings-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3) !important;
-            border-radius: 3px !important;
-            transition: background 0.2s !important;
+            background: linear-gradient(180deg, #4f7cff 0%, #38bdf8 100%) !important;
+            border-radius: 999px !important;
+            border: 2px solid rgba(14, 17, 22, 0.96) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+            transition: background 0.2s ease, box-shadow 0.2s ease !important;
         }
 
         .jw-settings-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5) !important;
+            background: linear-gradient(180deg, #6b8cff 0%, #46d9ff 100%) !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3) !important;
         }
 
         /* Firefox scrollbar styling */
         .jw-settings-content {
             scrollbar-width: thin !important;
-            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05) !important;
+            scrollbar-color: #4f7cff transparent !important;
         }
+
+        /* Ensure controls backdrop allows clicks to pass through to video */
+        .jw-controls-backdrop {
+            pointer-events: none !important;
+        }
+
+        /* Allow clicks on interactive control elements */
+        .jw-controlbar * {
+            pointer-events: auto !important;
+        }
+
         /* Tab Icon Styling */
         .jw-settings-tab svg {
             display: inline-block !important;
@@ -352,6 +431,7 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            white-space: nowrap !important;
         }
 
 </style>
@@ -750,6 +830,10 @@
                         <div class="jw-media jw-reset">
                             <video id="hls-video" playsinline style="width:100%;height:100%;background:#000;"></video>
                         </div>
+                        <div class="jw-overlay-center jw-reset">
+                            <div class="jw-loader" id="hls-loader" aria-hidden="true"></div>
+                            <div class="jw-tap-indicator" id="hls-tap-indicator" aria-hidden="true"></div>
+                        </div>
                         <div class="jw-controls jw-reset">
                             <div class="jw-controls-backdrop jw-reset"></div>
                             <div class="jw-controlbar jw-reset">
@@ -986,6 +1070,11 @@
             const pipButton = playerContainer.querySelector('.jw-icon-pip');
             const pipOnIcon = pipButton.querySelector('.jw-svg-icon-pip-on');
             const pipOffIcon = pipButton.querySelector('.jw-svg-icon-pip-off');
+            const overlay = playerContainer.querySelector('.jw-overlay-center');
+            const loaderEl = playerContainer.querySelector('#hls-loader');
+            const tapIndicator = playerContainer.querySelector('#hls-tap-indicator');
+            let tapIndicatorTimeout;
+            video.style.cursor = 'pointer';
 
             // Helper function to format time
             function formatTime(seconds) {
@@ -994,6 +1083,47 @@
                 const secs = Math.floor(seconds % 60);
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             }
+
+            function showLoader() {
+                if (loaderEl) {
+                    loaderEl.classList.add('active');
+                }
+            }
+
+            function hideLoader() {
+                if (loaderEl) {
+                    loaderEl.classList.remove('active');
+                }
+            }
+
+            function showTapFeedback(state) {
+                if (!tapIndicator) return;
+                tapIndicator.textContent = state === 'play' ? '▶' : '⏸';
+                tapIndicator.classList.add('active');
+                clearTimeout(tapIndicatorTimeout);
+                tapIndicatorTimeout = setTimeout(() => tapIndicator.classList.remove('active'), 450);
+            }
+
+            function togglePlayPause() {
+                if (video.paused) {
+                    video.play();
+                    showTapFeedback('play');
+                } else {
+                    video.pause();
+                    showTapFeedback('pause');
+                }
+            }
+
+            // Loader + tap feedback wiring
+            video.addEventListener('waiting', showLoader);
+            video.addEventListener('seeking', showLoader);
+            video.addEventListener('stalled', showLoader);
+            video.addEventListener('canplay', hideLoader);
+            video.addEventListener('canplaythrough', hideLoader);
+            video.addEventListener('playing', hideLoader);
+            video.addEventListener('seeked', hideLoader);
+            video.addEventListener('loadeddata', hideLoader);
+            video.addEventListener('click', togglePlayPause);
 
             // Update play/pause icon state
             function updatePlayState() {
@@ -1061,30 +1191,22 @@
             }
 
             // Play/Pause button
-            playButton.addEventListener('click', () => {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            });
+            playButton.addEventListener('click', togglePlayPause);
 
             video.addEventListener('play', updatePlayState);
             video.addEventListener('pause', updatePlayState);
             video.addEventListener('ended', updatePlayState);
 
             // Progress bar
-            video.addEventListener('timeupdate', () => {
+            function renderProgressState(currentTime) {
                 const duration = video.duration || 0;
-                const currentTime = video.currentTime || 0;
+                const safeTime = Math.max(0, Math.min(duration, currentTime || 0));
                 const buffered = video.buffered;
 
-                // Update progress
-                const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+                const progressPercent = duration > 0 ? (safeTime / duration) * 100 : 0;
                 progress.style.width = `${progressPercent}%`;
                 knob.style.left = `${progressPercent}%`;
 
-                // Update buffer
                 let bufferedPercent = 0;
                 if (buffered.length > 0) {
                     const bufferedEnd = buffered.end(buffered.length - 1);
@@ -1092,42 +1214,64 @@
                 }
                 buffer.style.width = `${bufferedPercent}%`;
 
-                // Update time displays
-                elapsedTime.textContent = formatTime(currentTime);
+                elapsedTime.textContent = formatTime(safeTime);
                 durationTime.textContent = formatTime(duration);
+            }
+
+            video.addEventListener('timeupdate', () => {
+                renderProgressState(video.currentTime || 0);
             });
 
-            // Seek on progress bar click
+            // Seek on progress bar click/drag (pointer-friendly)
             let isDragging = false;
 
             function seek(event) {
                 const rect = rail.getBoundingClientRect();
-                const pos = (event.clientX - rect.left) / rect.width;
+                const pos = Math.min(Math.max(0, (event.clientX - rect.left) / rect.width), 1);
                 const duration = video.duration || 0;
                 const seekTime = Math.max(0, Math.min(duration, pos * duration));
+                if (isNaN(seekTime)) return;
                 video.currentTime = seekTime;
+                renderProgressState(seekTime); // reflect new position immediately even while buffering
+                showLoader(); // keep loader visible until playback resumes
             }
 
-            progressSlider.addEventListener('mousedown', (e) => {
+            function startSeek(event) {
+                if (!rail) return;
                 isDragging = true;
                 playerContainer.classList.add('jw-flag-dragging');
-                seek(e);
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    seek(e);
+                if (progressBar.setPointerCapture) {
+                    try {
+                        progressBar.setPointerCapture(event.pointerId);
+                    } catch (e) { /* ignore */ }
                 }
-            });
+                seek(event);
+                event.preventDefault();
+            }
 
-            document.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    playerContainer.classList.remove('jw-flag-dragging');
+            function moveSeek(event) {
+                if (!isDragging) return;
+                seek(event);
+            }
+
+            function endSeek(event) {
+                if (!isDragging) return;
+                isDragging = false;
+                playerContainer.classList.remove('jw-flag-dragging');
+                if (progressBar.releasePointerCapture) {
+                    try {
+                        progressBar.releasePointerCapture(event.pointerId);
+                    } catch (e) { /* ignore */ }
                 }
-            });
+            }
 
-            progressSlider.addEventListener('click', seek);
+            progressBar.addEventListener('pointerdown', startSeek);
+            progressBar.addEventListener('pointermove', moveSeek);
+            progressBar.addEventListener('pointerup', endSeek);
+            progressBar.addEventListener('pointercancel', endSeek);
+            progressBar.addEventListener('click', (event) => {
+                seek(event);
+            });
 
             // Volume button
             volumeButton.addEventListener('click', () => {
@@ -1394,16 +1538,7 @@
                 }
             });
 
-            // ===============================================
-            // Video click to play/pause
-            // ===============================================
-            video.addEventListener('click', () => {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            });
+            // Note: Video click to play/pause is already handled by togglePlayPause() function above (line ~1099)
 
             // ===============================================
             // Keyboard Controls
@@ -1608,14 +1743,27 @@
         /**
          * Wire common player events
          */
-        function wirePlayerEvents(playerInstance) {
-            playerInstance.on('ready', handleReady);
-            playerInstance.on('play', () => console.log('▶ Video playing'));
-            playerInstance.on('pause', () => console.log('⏸ Video paused'));
-            playerInstance.on('complete', () => console.log('✓ Video completed'));
-            playerInstance.on('error', handleError);
-            playerInstance.on('playbackRateChanged', handlePlaybackRateChanged);
-            playerInstance.on('levelsChanged', handleLevelsChanged);
+                function wirePlayerEvents(playerInstance) {
+            const togglePlayback = () => {
+                const state = playerInstance.getState ? playerInstance.getState() : null;
+                if (state === "playing" && playerInstance.pause) {
+                    playerInstance.pause();
+                } else if (playerInstance.play) {
+                    playerInstance.play();
+                }
+            };
+
+            if (playerInstance.on) {
+                playerInstance.on("displayClick", togglePlayback);
+            }
+
+            playerInstance.on("ready", handleReady);
+            playerInstance.on("play", () => console.log("? Video playing"));
+            playerInstance.on("pause", () => console.log("? Video paused"));
+            playerInstance.on("complete", () => console.log("?? Video completed"));
+            playerInstance.on("error", handleError);
+            playerInstance.on("playbackRateChanged", handlePlaybackRateChanged);
+            playerInstance.on("levelsChanged", handleLevelsChanged);
         }
 
         /**
