@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW Player - Enhanced Resolution Controls</title>
+    <!-- JW Player CSS -->
+    <link rel="stylesheet" href="bin-debug/css/jwplayer.css">
+    <link rel="stylesheet" href="bin-debug/css/controls.css">
+
+    <!-- HLS.js Player Control Fixes -->
+    <style>
+        /* Fix for HLS.js custom controls to match JW Player exactly */
+
+        /* Make video fill entire player container without black bars */
+        #hls-video {
+            object-fit: cover !important;
+        }
+
+        /* Settings menu styling */
+        .jw-settings-menu {
+            position: absolute !important;
+            bottom: 50px !important;
+            right: 10px !important;
+            background: rgba(0, 0, 0, 0.9) !important;
+            border-radius: 4px !important;
+            min-width: 200px !important;
+            max-height: 300px !important;
+            overflow-y: auto !important;
+            z-index: 1000 !important;
+        }
+
+        .jw-settings-topbar {
+            padding: 12px 16px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .jw-settings-topbar-text {
+            color: #fff !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+        }
+
+        .jw-settings-close {
+            cursor: pointer !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+
+        .jw-settings-close svg {
+            width: 16px !important;
+            height: 16px !important;
+            fill: #fff !important;
+        }
+
+        .jw-settings-submenu {
+            padding: 4px 0 !important;
+            display: block !important;
+        }
+
+        .jw-settings-content-item {
+            padding: 10px 16px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            cursor: pointer !important;
+            transition: background 0.2s !important;
+        }
+
+        .jw-settings-content-item:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .jw-settings-item-label {
+            color: #fff !important;
+            font-size: 13px !important;
+        }
+
+        .jw-settings-item-active svg {
+            width: 16px !important;
+            height: 16px !important;
+            fill: #00a8ff !important;
+        }
+
+        /* Show inline volume button (hidden by default in JW Player CSS) */
+        .jw-icon-inline.jw-icon-volume {
+            display: flex !important;
+        }
+
+        /* Fix text-elapsed and text-duration display and sizing */
+        .jw-text-elapsed,
+        .jw-text-duration {
+            display: flex !important;
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: fit-content !important;
+        }
+
+        /* Progress bar positioned above other controls */
+        .jw-controlbar {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* Make progress bar full width and positioned at top */
+        .jw-controlbar > .jw-slider-time {
+            width: 100% !important;
+            flex: 0 0 auto !important;
+            order: -1 !important; /* Ensure it's first */
+            padding: 0 10px !important; /* Add horizontal spacing */
+            margin: 0 !important;
+            height: 5px !important; /* Thin progress bar like JW Player */
+        }
+
+        /* Reduce slider container and rail height */
+        .jw-controlbar > .jw-slider-time .jw-slider-container {
+            height: 5px !important;
+        }
+
+        .jw-controlbar > .jw-slider-time .jw-rail,
+        .jw-controlbar > .jw-slider-time .jw-buffer,
+        .jw-controlbar > .jw-slider-time .jw-progress {
+            height: 5px !important;
+        }
+
+        /* Smaller knob for thin progress bar */
+        .jw-controlbar > .jw-slider-time .jw-knob {
+            width: 10px !important;
+            height: 10px !important;
+        }
+
+        /* Button container below progress bar */
+        .jw-button-container {
+            flex: 0 0 auto !important;
+            width: 100% !important;
+        }
+
+        /* Fix text alignment and padding */
+        .jw-text-elapsed .jw-text-countdown,
+        .jw-text-duration .jw-text-duration-time {
+            display: inline-block;
+            min-width: 3em;
+        }
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .player-wrapper {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        #player-container {
+            background-color: #000;
+            height: 500px;
+            position: relative;
+        }
+
+        .controls-panel {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .control-section {
+            margin-bottom: 30px;
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-section h3::before {
+            content: '';
+            width: 6px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .quality-selector-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        select {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+            appearance: none;
+        }
+
+        select:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-panel h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .info-panel ul {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .info-panel ul li {
+            margin-bottom: 8px;
+        }
+
+        .info-panel code {
+            background-color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            border: 1px solid #e0e0e0;
+        }
+
+        .video-source-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+    <!-- Load JW Player library from debug build -->
+    <script src="bin-debug/jwplayer.js"></script>
+    <!-- HLS.js for browsers without native HLS support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 JW Player - Enhanced Resolution Controls</h1>
+
+        <div class="info-panel">
+            <h2>✨ Features</h2>
+            <ul>
+                <li><strong>Adaptive Quality Selection:</strong> Automatically detects and displays available video quality levels</li>
+                <li><strong>HLS & MP4 Support:</strong> Works with both HLS streams (.m3u8) and MP4 files</li>
+                <li><strong>Auto Quality Mode:</strong> Intelligent quality switching based on bandwidth</li>
+                <li><strong>Manual Quality Control:</strong> Select specific resolutions (360p, 480p, 720p, 1080p, etc.)</li>
+                <li><strong>Playback Speed Control:</strong> Adjust video speed from 0.25x to 3x</li>
+                <li><strong>Browser Compatibility:</strong> Uses HLS.js fallback for non-Safari browsers</li>
+            </ul>
+        </div>
+
+        <div class="player-wrapper">
+            <div id="player-container">Loading player...</div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-section">
+                <h3>🎥 Video Quality Controls</h3>
+                <div class="quality-selector-wrapper">
+                    <select id="quality-selector" onchange="changeQuality()">
+                        <option value="auto">Auto (Recommended)</option>
+                    </select>
+                    <span class="status-badge" id="quality-status">Loading...</span>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>⚡ Playback Speed</h3>
+                <div class="button-group">
+                    <button class="speed-btn" onclick="setSpeed(0.25, event)">0.25x</button>
+                    <button class="speed-btn" onclick="setSpeed(0.5, event)">0.5x</button>
+                    <button class="speed-btn" onclick="setSpeed(0.75, event)">0.75x</button>
+                    <button class="speed-btn active" onclick="setSpeed(1, event)">1x Normal</button>
+                    <button class="speed-btn" onclick="setSpeed(1.25, event)">1.25x</button>
+                    <button class="speed-btn" onclick="setSpeed(1.5, event)">1.5x</button>
+                    <button class="speed-btn" onclick="setSpeed(2, event)">2x</button>
+                    <button class="speed-btn" onclick="setSpeed(3, event)">3x</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <span class="status-badge" id="speed-status">Speed: 1x</span>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>🎮 Player Controls</h3>
+                <div class="button-group">
+                    <button onclick="player.play()">▶ Play</button>
+                    <button onclick="player.pause()">⏸ Pause</button>
+                    <button onclick="player.setVolume(Math.min(100, player.getVolume() + 10))">🔊 Vol +</button>
+                    <button onclick="player.setVolume(Math.max(0, player.getVolume() - 10))">🔉 Vol -</button>
+                    <button onclick="player.setMute(!player.getMute())">🔇 Mute</button>
+                    <button onclick="player.seek(0)">⏮ Restart</button>
+                    <button onclick="showPlayerInfo()">ℹ Info</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>🔗 Load Custom Video</h3>
+                <div class="video-source-input">
+                    <input type="text" id="video-url" placeholder="Enter video URL (MP4 or M3U8)"
+                           value="https://eu2.contabostorage.com/beede22b78b34cd7b1c01987a4332d1b:meteka/111/index.m3u8">
+                    <button onclick="loadCustomVideo()">Load Video</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const DEFAULT_HLS_SOURCE = 'https://eu2.contabostorage.com/beede22b78b34cd7b1c01987a4332d1b:meteka/111/index.m3u8';
+        const AUTO_QUALITY = 'auto';
+
+        let player;
+        let usingHlsJsFallback = false;
+        let hlsInstance = null;
+
+        /**
+         * Detect if browser can play HLS natively
+         */
+        function canPlayHlsNatively() {
+            const video = document.createElement('video');
+            const ua = navigator.userAgent || '';
+            const isIOS = /iP(ad|hone|od)/i.test(ua);
+            const isSafari = /Safari/i.test(ua) && !/Chrome|Chromium|Edg/i.test(ua);
+            const canPlay = video.canPlayType('application/vnd.apple.mpegurl');
+            return (isIOS || isSafari) && !!canPlay;
+        }
+
+        /**
+         * Initialize the player with appropriate method based on browser capabilities
+         */
+        function initPlayer(sourceUrl = DEFAULT_HLS_SOURCE) {
+            const container = document.getElementById('player-container');
+
+            // Determine if source is HLS
+            const isHls = sourceUrl.includes('.m3u8');
+
+            if (isHls && window.Hls && Hls.isSupported() && !canPlayHlsNatively()) {
+                // Use HLS.js for browsers without native HLS
+                console.log('Using HLS.js for playback');
+                player = setupHlsJsPlayer(sourceUrl);
+                usingHlsJsFallback = true;
+            } else if (isHls && canPlayHlsNatively()) {
+                // Use native HLS for Safari/iOS
+                console.log('Using native HLS playback');
+                player = setupJwPlayer({
+                    file: sourceUrl,
+                    type: 'hls'
+                });
+                usingHlsJsFallback = false;
+            } else {
+                // Use JW Player for regular MP4
+                console.log('Using JW Player for MP4 playback');
+                player = setupJwPlayer({
+                    file: sourceUrl,
+                    type: 'mp4'
+                });
+                usingHlsJsFallback = false;
+            }
+        }
+
+        /**
+         * Setup JW Player (for native HLS or MP4)
+         */
+        function setupJwPlayer(source) {
+            const instance = jwplayer('player-container').setup({
+                sources: [source],
+                width: '100%',
+                aspectratio: '16:9',
+                autostart: false,
+                controls: true,
+                mute: false,
+                playbackRateControls: true,
+                displaytitle: true,
+                displaydescription: true
+            });
+
+            // Attach event listeners
+            wirePlayerEvents(instance);
+            return instance;
+        }
+
+        /**
+         * Setup HLS.js player with JW Player API compatibility
+         */
+        function setupHlsJsPlayer(sourceUrl) {
+            const container = document.getElementById('player-container');
+            // Create video element and custom controls matching JW Player structure
+            container.innerHTML = `
+                <div class="jwplayer jw-reset jw-state-idle" style="width:100%;height:100%;position:relative;">
+                    <div class="jw-wrapper jw-reset">
+                        <div class="jw-media jw-reset">
+                            <video id="hls-video" playsinline style="width:100%;height:100%;background:#000;"></video>
+                        </div>
+                        <div class="jw-controls jw-reset">
+                            <div class="jw-controls-backdrop jw-reset"></div>
+                            <div class="jw-controlbar jw-reset">
+                                <div class="jw-slider-time jw-reset jw-slider-horizontal jw-background-color jw-reset">
+                                    <div class="jw-slider-container jw-reset">
+                                        <div class="jw-rail jw-reset"></div>
+                                        <div class="jw-buffer jw-reset" style="width:0%"></div>
+                                        <div class="jw-progress jw-reset" style="width:0%"></div>
+                                        <div class="jw-knob jw-reset"></div>
+                                    </div>
+                                </div>
+                                <div class="jw-button-container jw-reset">
+                                    <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-playback" role="button" tabindex="0" aria-label="Play">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-play" viewBox="0 0 240 240" focusable="false">
+                                            <path d="M62.8,199.5c-1,0.8-2.4,0.6-3.3-0.4c-0.4-0.5-0.6-1.1-0.5-1.8V42.6c-0.2-1.3,0.7-2.4,1.9-2.6c0.7-0.1,1.3,0.1,1.9,0.4l154.7,77.7c1.1,0.6,1.6,1.9,1,3c-0.3,0.5-0.7,0.9-1.2,1.1l-154.5,77.8"></path>
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-pause" viewBox="0 0 240 240" focusable="false" style="display:none;">
+                                            <path d="M100,194.9c0.2,2.6-1.8,4.8-4.4,5c-0.2,0-0.4,0-0.6,0H65c-2.6,0.2-4.8-1.8-5-4.4c0-0.2,0-0.4,0-0.6V45c-0.2-2.6,1.8-4.8,4.4-5c0.2,0,0.4,0,0.6,0h30c2.6-0.2,4.8,1.8,5,4.4c0,0.2,0,0.4,0,0.6V194.9z M180,45.1c0.2-2.6-1.8-4.8-4.4-5c-0.2,0-0.4,0-0.6,0h-30c-2.6-0.2-4.8,1.8-5,4.4c0,0.2,0,0.4,0,0.6V195c-0.2,2.6,1.8,4.8,4.4,5c0.2,0,0.4,0,0.6,0h30c2.6,0.2,4.8-1.8,5-4.4c0-0.2,0-0.4,0-0.6V45.1z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-volume jw-icon-tooltip" role="button" tabindex="0" aria-label="Volume">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-volume-50" viewBox="0 0 240 240" focusable="false">
+                                            <path d="M116.4,42.8v154.5c0,2.8-2.2,5-5,5c-1.2,0-2.3-0.4-3.2-1.1L71.8,170c-0.8-0.6-1.8-1-2.8-1H35.5c-2.8,0-5-2.2-5-5V76c0-2.8,2.2-5,5-5H69c1,0,2-0.3,2.8-1l36.4-31.2c1.8-1.5,4.4-1.3,5.9,0.5C115,40.1,116.4,41.4,116.4,42.8z M178.2,120c0-22.7-18.5-41.2-41.2-41.2v20.6c11.4,0,20.6,9.2,20.6,20.6c0,11.4-9.2,20.6-20.6,20.6v20.6C159.7,161.2,178.2,142.7,178.2,120z"></path>
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-volume-0" viewBox="0 0 240 240" focusable="false" style="display:none;">
+                                            <path d="M116.4,42.8v154.5c0,2.8-2.2,5-5,5c-1.2,0-2.3-0.4-3.2-1.1L71.8,170c-0.8-0.6-1.8-1-2.8-1H35.5c-2.8,0-5-2.2-5-5V76c0-2.8,2.2-5,5-5H69c1,0,2-0.3,2.8-1l36.4-31.2c1.8-1.5,4.4-1.3,5.9,0.5C115,40.1,116.4,41.4,116.4,42.8z M212.3,96.4l-14.6-14.6l-23.6,23.6l-23.6-23.6l-14.6,14.6l23.6,23.6l-23.6,23.6l14.6,14.6l23.6-23.6l23.6,23.6l14.6-14.6L188.7,120L212.3,96.4z"></path>
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-volume-100" viewBox="0 0 240 240" focusable="false" style="display:none;">
+                                            <path d="M116.5,42.8v154.4c0,2.8-2.2,5-5,5c-1.2,0-2.3-0.4-3.2-1.1L71.8,170c-0.8-0.6-1.8-1-2.8-1H35.6c-2.8,0-5-2.2-5-5V76c0-2.8,2.2-5,5-5H69c1,0,2-0.3,2.8-1l36.4-31.2c1.8-1.5,4.4-1.3,5.9,0.5C115,40.1,116.5,41.4,116.5,42.8z M136.2,160v-20.6c11.4,0,20.6-9.2,20.6-20.6c0-11.4-9.2-20.6-20.6-20.6V77.6c22.7,0,41.2,18.5,41.2,41.2C177.4,141.5,158.9,160,136.2,160z M136.2,200v-20.6c33.9,0,61.4-27.5,61.4-61.4c0-33.9-27.5-61.4-61.4-61.4V35.9c45.1,0,81.8,36.7,81.8,81.8C218,162.8,181.3,199.5,136.2,200z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="jw-text jw-reset jw-text-elapsed" role="timer" aria-live="off">
+                                        <span class="jw-text-countdown">0:00</span>
+                                    </div>
+                                    <div class="jw-text jw-reset jw-text-duration" role="timer">
+                                        <span class="jw-text-duration-time">0:00</span>
+                                    </div>
+                                    <div class="jw-spacer jw-reset"></div>
+                                    <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-settings-submenu-button jw-icon-settings jw-icon-tooltip" role="button" tabindex="0" aria-label="Settings">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-settings" viewBox="0 0 240 240" focusable="false">
+                                            <path d="M204,145l-25-14c0.8-3.6,1.2-7.3,1-11c0.2-3.7-0.2-7.4-1-11l25-14c2.2-1.6,3.1-4.5,2-7l-16-26c-1.2-2.1-3.8-2.9-6-2l-25,14c-6.4-4.9-13.6-8.6-21-11V35c0.2-2.6-1.8-4.8-4.4-5c-0.2,0-0.4,0-0.6,0h-30c-2.6-0.2-4.8,1.8-5,4.4c0,0.2,0,0.4,0,0.6v28c-7.5,2.4-14.6,6.1-21,11l-25-14c-2.2-0.9-4.8-0.1-6,2l-16,26c-1.4,2.1-0.7,4.9,1.4,6.3c0.2,0.1,0.4,0.3,0.6,0.4L56,109c-0.8,3.6-1.2,7.3-1,11c-0.2,3.7,0.2,7.4,1,11L31,145c-2.2,1.6-3.1,4.5-2,7l16,26c1.2,2.1,3.8,2.9,6,2l25-14c6.4,4.9,13.6,8.6,21,11v28c-0.2,2.6,1.8,4.8,4.4,5c0.2,0,0.4,0,0.6,0h30c2.6,0.2,4.8-1.8,5-4.4c0-0.2,0-0.4,0-0.6v-28c7.5-2.4,14.6-6.1,21-11l25,14c2.2,0.9,4.8,0.1,6-2l16-26C207.3,149.9,206.5,146.9,204,145z M120,149.5c-16.3,0-29.5-13.2-29.5-29.5s13.2-29.5,29.5-29.5s29.5,13.2,29.5,29.5C149.5,136.3,136.3,149.5,120,149.5z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-pip jw-icon-tooltip" role="button" tabindex="0" aria-label="Picture in Picture">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-pip-on" viewBox="0 0 240 240" focusable="false">
+                                            <path d="M215,60v100c0,8.3-6.7,15-15,15H40c-8.3,0-15-6.7-15-15V60c0-8.3,6.7-15,15-15h160C208.3,45,215,51.7,215,60z M202.5,60c0-1.4-1.1-2.5-2.5-2.5H40c-1.4,0-2.5,1.1-2.5,2.5v100c0,1.4,1.1,2.5,2.5,2.5h65v-50c0-2.8,2.2-5,5-5h90V60z M200,120h-80v40h80V120z"></path>
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-pip-off" viewBox="0 0 240 240" focusable="false" style="display:none;">
+                                            <path d="M215,60v100c0,8.3-6.7,15-15,15H40c-8.3,0-15-6.7-15-15V60c0-8.3,6.7-15,15-15h160C208.3,45,215,51.7,215,60z M202.5,60c0-1.4-1.1-2.5-2.5-2.5H40c-1.4,0-2.5,1.1-2.5,2.5v100c0,1.4,1.1,2.5,2.5,2.5h160c1.4,0,2.5-1.1,2.5-2.5V60z M145,120v30h45v-30H145z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-fullscreen jw-icon-tooltip" role="button" tabindex="0" aria-label="Fullscreen">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-fullscreen-on" viewBox="0 0 240 240" focusable="false">
+                                            <path d="M96.3,186.1c1.9,0,3.8,0.8,5.1,2.2l0,0c2.7,3,2.7,7.6,0,10.6c-1.4,1.4-3.2,2.2-5.1,2.2H65.6c-4,0-7.3-3.3-7.3-7.3v-30.7c0-4,3.3-7.3,7.3-7.3c4,0,7.3,3.3,7.3,7.3v21.7l32.6-32.6c1.5-1.3,3.4-2,5.4-2c4,0,7.3,3.3,7.3,7.3c0,2-0.8,3.9-2.2,5.3l-32.4,32.4H96.3z M189.7,38.2v30.7c0,4-3.3,7.3-7.3,7.3c-4,0-7.3-3.3-7.3-7.3V47.1l-32.6,32.6c-1.4,1.4-3.3,2.2-5.3,2.2c-4,0-7.3-3.3-7.3-7.3c0-2,0.8-3.9,2-5.4l32.6-32.6H143c-4,0-7.3-3.3-7.3-7.3c0-4,3.3-7.3,7.3-7.3h31.4c1.9,0,3.8,0.8,5.1,2.2c2.5,2.5,3.1,6.4,1.5,9.6C191,34.5,191,36.4,189.7,38.2L189.7,38.2z M189.7,201.8c0,4-3.3,7.3-7.3,7.3h-30.7c-4,0-7.3-3.3-7.3-7.3c0-4,3.3-7.3,7.3-7.3H173l-32.6-32.6c-2.8-2.9-2.8-7.4,0.1-10.2c1.4-1.4,3.3-2.1,5.2-2.1c2,0,3.9,0.8,5.3,2.2l32.6,32.6v-21.7c0-4,3.3-7.3,7.3-7.3c4,0,7.3,3.3,7.3,7.3V201.8z M96.3,38.2c0-4-3.3-7.3-7.3-7.3c-4,0-7.3,3.3-7.3,7.3v21.7L49.1,27.3c-2.9-2.8-7.4-2.8-10.2,0.1c-1.3,1.4-2.1,3.3-2.1,5.2c0,2,0.8,3.9,2.2,5.3l32.6,32.6H50.2c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3h30.7c4,0,7.3-3.3,7.3-7.3V38.2H96.3z"></path>
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-fullscreen-off" viewBox="0 0 240 240" focusable="false" style="display:none;">
+                                            <path d="M109.2,134.9l-8.4,50.1c-0.4,2.7-2.4,3.3-4.4,1.3L82,171.8l-17.5,17.5c-1.4,1.4-3.8,1.4-5.3,0l-8.4-8.4c-1.4-1.4-1.4-3.8,0-5.3l17.5-17.5l-14.4-14.4c-2-2-1.4-4,1.3-4.4l50.1-8.4c0.9-0.1,1.7,0.2,2.3,0.7C109,132.2,109.4,133.8,109.2,134.9z M192.3,47.7c1.4,1.4,1.4,3.8,0,5.3l-17.5,17.5l14.4,14.4c2,2,1.4,4-1.3,4.4l-50.1,8.4c-0.9,0.1-1.7-0.2-2.3-0.7c-1.4-1.4-1.8-3-1.6-4.1l8.4-50.1c0.4-2.7,2.4-3.3,4.4-1.3L161,55.8l17.5-17.5c1.4-1.4,3.8-1.4,5.3,0L192.3,47.7z M189.7,192.3l-8.4-8.4c-1.4-1.4-3.8-1.4-5.3,0l-17.5,17.5l-14.4-14.4c-2-2-4-1.4-4.4,1.3l-8.4,50.1c-0.1,0.9,0.2,1.7,0.7,2.3c1.4,1.4,3,1.8,4.1,1.6l50.1-8.4c2.7-0.4,3.3-2.4,1.3-4.4L173,215.1l17.5-17.5C191.9,196.2,191.9,193.8,189.7,192.3z M47.7,47.7l8.4,8.4c1.4,1.4,3.8,1.4,5.3,0l17.5-17.5l14.4,14.4c2,2,4,1.4,4.4-1.3l8.4-50.1c0.1-0.9-0.2-1.7-0.7-2.3c-1.4-1.4-3-1.8-4.1-1.6L51.2,6.1c-2.7,0.4-3.3,2.4-1.3,4.4L64.3,24.9L46.8,42.4C45.4,43.8,45.4,46.2,47.7,47.7z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="jw-settings-menu jw-reset" style="display:none;">
+                                <div class="jw-settings-topbar jw-reset">
+                                    <div class="jw-settings-topbar-text jw-reset">Settings</div>
+                                    <div class="jw-settings-topbar-buttons jw-reset">
+                                        <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-settings-close" role="button" tabindex="0" aria-label="Close">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon" viewBox="0 0 240 240" focusable="false">
+                                                <path d="M134.8,120l48.6-48.6c2-1.9,2.1-5.2,0.2-7.2c0,0-0.1-0.1-0.2-0.2l-7.4-7.4c-1.9-2-5.2-2.1-7.2-0.2c0,0-0.1,0.1-0.2,0.2L120,105.2L71.4,56.6c-1.9-2-5.2-2.1-7.2-0.2c0,0-0.1,0.1-0.2,0.2L56.6,64c-2,1.9-2.1,5.2-0.2,7.2c0,0,0.1,0.1,0.2,0.2l48.6,48.6l-48.6,48.6c-2,1.9-2.1,5.2-0.2,7.2c0,0,0.1,0.1,0.2,0.2l7.4,7.4c1.9,2,5.2,2.1,7.2,0.2c0,0,0.1-0.1,0.2-0.2l48.6-48.6l48.6,48.6c1.9,2,5.2,2.1,7.2,0.2c0,0,0.1-0.1,0.2-0.2l7.4-7.4c2-1.9,2.1-5.2,0.2-7.2c0,0-0.1-0.1-0.2-0.2L134.8,120z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="jw-settings-section-header jw-reset" style="padding:8px 16px;color:#888;font-size:11px;text-transform:uppercase;font-weight:600;">Quality</div>
+                                <div class="jw-settings-submenu jw-settings-submenu-quality jw-reset"></div>
+                                <div class="jw-settings-section-header jw-reset" style="padding:8px 16px;color:#888;font-size:11px;text-transform:uppercase;font-weight:600;border-top:1px solid rgba(255,255,255,0.1);">Playback Speed</div>
+                                <div class="jw-settings-submenu jw-settings-submenu-speed jw-reset"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const video = document.getElementById('hls-video');
+            const hls = new Hls({
+                enableWorker: true,
+                lowLatencyMode: false,
+                backBufferLength: 90
+            });
+
+            hlsInstance = hls;
+            const eventListeners = {};
+
+            function emit(eventName, data = {}) {
+                (eventListeners[eventName] || []).forEach(cb => cb(data));
+            }
+
+            // Create JW Player compatible API
+            const api = {
+                play: () => video.play(),
+                pause: () => video.pause(),
+                setVolume: (volume) => {
+                    video.volume = Math.max(0, Math.min(100, volume)) / 100;
+                },
+                getVolume: () => Math.round(video.volume * 100),
+                setMute: (state) => {
+                    video.muted = state;
+                },
+                getMute: () => video.muted,
+                seek: (position) => {
+                    if (!isNaN(position)) video.currentTime = position;
+                },
+                getPosition: () => video.currentTime || 0,
+                getDuration: () => video.duration || 0,
+                setPlaybackRate: (rate) => {
+                    video.playbackRate = rate;
+                    emit('playbackRateChanged', { playbackRate: rate });
+                },
+                getPlaybackRate: () => video.playbackRate || 1,
+
+                // Quality control methods
+                getQualityLevels: () => {
+                    const levels = hls.levels || [];
+                    return levels.map((level, index) => ({
+                        label: formatQualityLabel(level, index)
+                    }));
+                },
+                getCurrentQuality: () => {
+                    return hls.autoLevelEnabled ? AUTO_QUALITY : hls.currentLevel;
+                },
+                setCurrentQuality: (quality) => {
+                    if (quality === AUTO_QUALITY || quality === -1) {
+                        hls.currentLevel = -1;
+                        emit('levelsChanged', { currentQuality: AUTO_QUALITY });
+                    } else {
+                        const index = parseInt(quality);
+                        if (!isNaN(index) && index >= 0 && index < hls.levels.length) {
+                            hls.currentLevel = index;
+                            emit('levelsChanged', { currentQuality: index });
+                        }
+                    }
+                },
+
+                on: (eventName, callback) => {
+                    if (!eventListeners[eventName]) {
+                        eventListeners[eventName] = [];
+                    }
+                    eventListeners[eventName].push(callback);
+                }
+            };
+
+            // Load and attach HLS source
+            hls.loadSource(sourceUrl);
+            hls.attachMedia(video);
+
+            // HLS.js events
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                console.log('HLS manifest parsed, levels:', hls.levels.length);
+                emit('ready');
+            });
+
+            hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+                console.log('Level switched to:', data.level);
+                emit('levelsChanged', { currentQuality: data.level });
+            });
+
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                console.error('HLS.js error:', data);
+                if (data.fatal) {
+                    emit('error', { message: data.details || 'HLS playback error' });
+                }
+            });
+
+            // Video element events
+            video.addEventListener('play', () => emit('play'));
+            video.addEventListener('pause', () => emit('pause'));
+            video.addEventListener('ended', () => emit('complete'));
+            video.addEventListener('timeupdate', () => emit('time'));
+            video.addEventListener('ratechange', () => {
+                emit('playbackRateChanged', { playbackRate: video.playbackRate });
+            });
+
+            // Wire up custom controls
+            setupCustomControls(video, api, hls);
+
+            wirePlayerEvents(api);
+            return api;
+        }
+
+        /**
+         * Setup custom control interactions for HLS.js player
+         */
+        function setupCustomControls(video, api, hls) {
+            const playerContainer = video.closest('.jwplayer');
+            const playButton = playerContainer.querySelector('.jw-icon-playback');
+            const playIcon = playButton.querySelector('.jw-svg-icon-play');
+            const pauseIcon = playButton.querySelector('.jw-svg-icon-pause');
+            const progressBar = playerContainer.querySelector('.jw-slider-time');
+            const progressSlider = progressBar.querySelector('.jw-slider-container');
+            const rail = progressSlider.querySelector('.jw-rail');
+            const buffer = progressSlider.querySelector('.jw-buffer');
+            const progress = progressSlider.querySelector('.jw-progress');
+            const knob = progressSlider.querySelector('.jw-knob');
+            const elapsedTime = playerContainer.querySelector('.jw-text-countdown');
+            const durationTime = playerContainer.querySelector('.jw-text-duration-time');
+            const volumeButton = playerContainer.querySelector('.jw-icon-volume');
+            const volumeIcon50 = volumeButton.querySelector('.jw-svg-icon-volume-50');
+            const volumeIcon0 = volumeButton.querySelector('.jw-svg-icon-volume-0');
+            const volumeIcon100 = volumeButton.querySelector('.jw-svg-icon-volume-100');
+            const fullscreenButton = playerContainer.querySelector('.jw-icon-fullscreen');
+            const fullscreenOnIcon = fullscreenButton.querySelector('.jw-svg-icon-fullscreen-on');
+            const fullscreenOffIcon = fullscreenButton.querySelector('.jw-svg-icon-fullscreen-off');
+            const pipButton = playerContainer.querySelector('.jw-icon-pip');
+            const pipOnIcon = pipButton.querySelector('.jw-svg-icon-pip-on');
+            const pipOffIcon = pipButton.querySelector('.jw-svg-icon-pip-off');
+
+            // Helper function to format time
+            function formatTime(seconds) {
+                if (isNaN(seconds) || !isFinite(seconds)) return '0:00';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            // Update play/pause icon state
+            function updatePlayState() {
+                if (video.paused) {
+                    playIcon.style.display = '';
+                    pauseIcon.style.display = 'none';
+                    playerContainer.classList.remove('jw-state-playing');
+                    playerContainer.classList.add('jw-state-paused');
+                } else {
+                    playIcon.style.display = 'none';
+                    pauseIcon.style.display = '';
+                    playerContainer.classList.remove('jw-state-paused');
+                    playerContainer.classList.add('jw-state-playing');
+                }
+            }
+
+            // Update volume icon state
+            function updateVolumeState() {
+                const volume = video.volume;
+                const muted = video.muted;
+
+                volumeIcon0.style.display = 'none';
+                volumeIcon50.style.display = 'none';
+                volumeIcon100.style.display = 'none';
+
+                if (muted || volume === 0) {
+                    volumeIcon0.style.display = '';
+                    volumeButton.classList.add('jw-off');
+                } else if (volume === 1) {
+                    volumeIcon100.style.display = '';
+                    volumeButton.classList.remove('jw-off');
+                    volumeButton.classList.add('jw-full');
+                } else {
+                    volumeIcon50.style.display = '';
+                    volumeButton.classList.remove('jw-off', 'jw-full');
+                }
+            }
+
+            // Update fullscreen icon state
+            function updateFullscreenState() {
+                const isFullscreen = document.fullscreenElement === playerContainer;
+                if (isFullscreen) {
+                    fullscreenOnIcon.style.display = 'none';
+                    fullscreenOffIcon.style.display = '';
+                    fullscreenButton.classList.add('jw-off');
+                } else {
+                    fullscreenOnIcon.style.display = '';
+                    fullscreenOffIcon.style.display = 'none';
+                    fullscreenButton.classList.remove('jw-off');
+                }
+            }
+
+            // Update PiP icon state
+            function updatePipState() {
+                const isPip = document.pictureInPictureElement === video;
+                if (isPip) {
+                    pipOnIcon.style.display = 'none';
+                    pipOffIcon.style.display = '';
+                    pipButton.classList.add('jw-off');
+                } else {
+                    pipOnIcon.style.display = '';
+                    pipOffIcon.style.display = 'none';
+                    pipButton.classList.remove('jw-off');
+                }
+            }
+
+            // Play/Pause button
+            playButton.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+
+            video.addEventListener('play', updatePlayState);
+            video.addEventListener('pause', updatePlayState);
+            video.addEventListener('ended', updatePlayState);
+
+            // Progress bar
+            video.addEventListener('timeupdate', () => {
+                const duration = video.duration || 0;
+                const currentTime = video.currentTime || 0;
+                const buffered = video.buffered;
+
+                // Update progress
+                const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+                progress.style.width = `${progressPercent}%`;
+                knob.style.left = `${progressPercent}%`;
+
+                // Update buffer
+                let bufferedPercent = 0;
+                if (buffered.length > 0) {
+                    const bufferedEnd = buffered.end(buffered.length - 1);
+                    bufferedPercent = duration > 0 ? (bufferedEnd / duration) * 100 : 0;
+                }
+                buffer.style.width = `${bufferedPercent}%`;
+
+                // Update time displays
+                elapsedTime.textContent = formatTime(currentTime);
+                durationTime.textContent = formatTime(duration);
+            });
+
+            // Seek on progress bar click
+            let isDragging = false;
+
+            function seek(event) {
+                const rect = rail.getBoundingClientRect();
+                const pos = (event.clientX - rect.left) / rect.width;
+                const duration = video.duration || 0;
+                const seekTime = Math.max(0, Math.min(duration, pos * duration));
+                video.currentTime = seekTime;
+            }
+
+            progressSlider.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                playerContainer.classList.add('jw-flag-dragging');
+                seek(e);
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    seek(e);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    playerContainer.classList.remove('jw-flag-dragging');
+                }
+            });
+
+            progressSlider.addEventListener('click', seek);
+
+            // Volume button
+            volumeButton.addEventListener('click', () => {
+                video.muted = !video.muted;
+            });
+
+            video.addEventListener('volumechange', updateVolumeState);
+
+            // Fullscreen button
+            fullscreenButton.addEventListener('click', () => {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    playerContainer.requestFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', updateFullscreenState);
+
+            // Picture-in-Picture button
+            pipButton.addEventListener('click', async () => {
+                try {
+                    if (document.pictureInPictureElement) {
+                        await document.exitPictureInPicture();
+                    } else if (document.pictureInPictureEnabled) {
+                        await video.requestPictureInPicture();
+                    }
+                } catch (error) {
+                    console.error('PiP error:', error);
+                }
+            });
+
+            video.addEventListener('enterpictureinpicture', updatePipState);
+            video.addEventListener('leavepictureinpicture', updatePipState);
+
+            // Settings menu
+            const settingsButton = playerContainer.querySelector('.jw-icon-settings');
+            const settingsMenu = playerContainer.querySelector('.jw-settings-menu');
+            const settingsClose = playerContainer.querySelector('.jw-settings-close');
+            const qualitySubmenu = playerContainer.querySelector('.jw-settings-submenu-quality');
+            const speedSubmenu = playerContainer.querySelector('.jw-settings-submenu-speed');
+
+            function toggleSettingsMenu() {
+                if (settingsMenu.style.display === 'none') {
+                    settingsMenu.style.display = 'block';
+                } else {
+                    settingsMenu.style.display = 'none';
+                }
+            }
+
+            settingsButton.addEventListener('click', toggleSettingsMenu);
+            settingsClose.addEventListener('click', toggleSettingsMenu);
+
+            // Populate playback speed menu
+            function populateSpeedMenu() {
+                const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+                speedSubmenu.innerHTML = '';
+
+                speeds.forEach(speed => {
+                    const item = document.createElement('div');
+                    item.className = 'jw-settings-content-item jw-reset';
+                    item.setAttribute('data-speed', speed.toString());
+                    item.setAttribute('role', 'button');
+                    item.setAttribute('tabindex', '0');
+                    item.innerHTML = `
+                        <div class="jw-settings-item-label jw-reset">${speed}x</div>
+                        <div class="jw-settings-item-active jw-reset" style="display:${video.playbackRate === speed ? 'block' : 'none'};">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon" viewBox="0 0 240 240" focusable="false">
+                                <path d="M204,120c0-5.2-1.5-10.2-4.4-14.4l0,0L96.8,8.4C93,3.2,86.8,0,80,0C71.2,0,64,7.2,64,16v208c0,8.8,7.2,16,16,16c6.8,0,13-3.2,16.8-8.4l102.8-97.2l0,0C202.5,130.2,204,125.2,204,120z"></path>
+                            </svg>
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        video.playbackRate = speed;
+                        updateSpeedMenuSelection();
+                        toggleSettingsMenu();
+                    });
+                    speedSubmenu.appendChild(item);
+                });
+            }
+
+            function updateSpeedMenuSelection() {
+                const items = speedSubmenu.querySelectorAll('.jw-settings-content-item');
+                items.forEach(item => {
+                    const speed = parseFloat(item.getAttribute('data-speed'));
+                    const activeIndicator = item.querySelector('.jw-settings-item-active');
+                    if (speed === video.playbackRate) {
+                        activeIndicator.style.display = 'block';
+                    } else {
+                        activeIndicator.style.display = 'none';
+                    }
+                });
+            }
+
+            // Populate settings menu with quality levels
+            function populateQualityMenu() {
+                qualitySubmenu.innerHTML = '';
+
+                // Add Auto option
+                const autoItem = document.createElement('div');
+                autoItem.className = 'jw-settings-content-item jw-reset';
+                autoItem.setAttribute('data-quality', '-1');
+                autoItem.setAttribute('role', 'button');
+                autoItem.setAttribute('tabindex', '0');
+                autoItem.innerHTML = `
+                    <div class="jw-settings-item-label jw-reset">Auto</div>
+                    <div class="jw-settings-item-active jw-reset" style="display:${hls.currentLevel === -1 ? 'block' : 'none'};">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon" viewBox="0 0 240 240" focusable="false">
+                            <path d="M204,120c0-5.2-1.5-10.2-4.4-14.4l0,0L96.8,8.4C93,3.2,86.8,0,80,0C71.2,0,64,7.2,64,16v208c0,8.8,7.2,16,16,16c6.8,0,13-3.2,16.8-8.4l102.8-97.2l0,0C202.5,130.2,204,125.2,204,120z"></path>
+                        </svg>
+                    </div>
+                `;
+                autoItem.addEventListener('click', () => {
+                    hls.currentLevel = -1;
+                    updateQualityMenuSelection();
+                    toggleSettingsMenu();
+                });
+                qualitySubmenu.appendChild(autoItem);
+
+                // Add quality level options
+                hls.levels.forEach((level, index) => {
+                    const label = formatQualityLabel(level, index);
+                    const item = document.createElement('div');
+                    item.className = 'jw-settings-content-item jw-reset';
+                    item.setAttribute('data-quality', index.toString());
+                    item.setAttribute('role', 'button');
+                    item.setAttribute('tabindex', '0');
+                    item.innerHTML = `
+                        <div class="jw-settings-item-label jw-reset">${label}</div>
+                        <div class="jw-settings-item-active jw-reset" style="display:${hls.currentLevel === index ? 'block' : 'none'};">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon" viewBox="0 0 240 240" focusable="false">
+                                <path d="M204,120c0-5.2-1.5-10.2-4.4-14.4l0,0L96.8,8.4C93,3.2,86.8,0,80,0C71.2,0,64,7.2,64,16v208c0,8.8,7.2,16,16,16c6.8,0,13-3.2,16.8-8.4l102.8-97.2l0,0C202.5,130.2,204,125.2,204,120z"></path>
+                            </svg>
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        hls.currentLevel = index;
+                        updateQualityMenuSelection();
+                        toggleSettingsMenu();
+                    });
+                    qualitySubmenu.appendChild(item);
+                });
+            }
+
+            function updateQualityMenuSelection() {
+                const items = qualitySubmenu.querySelectorAll('.jw-settings-content-item');
+                items.forEach(item => {
+                    const quality = parseInt(item.getAttribute('data-quality'));
+                    const activeIndicator = item.querySelector('.jw-settings-item-active');
+                    if (quality === hls.currentLevel) {
+                        activeIndicator.style.display = 'block';
+                    } else {
+                        activeIndicator.style.display = 'none';
+                    }
+                });
+            }
+
+            // Populate menu when HLS levels are available
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                setTimeout(() => {
+                    populateQualityMenu();
+                    populateSpeedMenu();
+                }, 100);
+            });
+
+            // Update menu selection when level changes
+            hls.on(Hls.Events.LEVEL_SWITCHED, updateQualityMenuSelection);
+
+            // Update speed menu when playback rate changes
+            video.addEventListener('ratechange', updateSpeedMenuSelection);
+
+            // Function to update breakpoint class based on player width
+            function updateBreakpoint() {
+                const width = playerContainer.offsetWidth;
+                // Remove all breakpoint classes
+                playerContainer.classList.remove(
+                    'jw-breakpoint--1', 'jw-breakpoint-0', 'jw-breakpoint-1',
+                    'jw-breakpoint-2', 'jw-breakpoint-3', 'jw-breakpoint-4',
+                    'jw-breakpoint-5', 'jw-breakpoint-6', 'jw-breakpoint-7'
+                );
+
+                // Add appropriate breakpoint class
+                let breakpoint;
+                if (width < 320) breakpoint = 'jw-breakpoint-0';
+                else if (width < 420) breakpoint = 'jw-breakpoint-1';
+                else if (width < 480) breakpoint = 'jw-breakpoint-2';
+                else if (width < 640) breakpoint = 'jw-breakpoint-3';
+                else if (width < 800) breakpoint = 'jw-breakpoint-4';
+                else if (width < 960) breakpoint = 'jw-breakpoint-5';
+                else if (width < 1280) breakpoint = 'jw-breakpoint-6';
+                else breakpoint = 'jw-breakpoint-7';
+
+                playerContainer.classList.add(breakpoint);
+            }
+
+            // Initialize states
+            updatePlayState();
+            updateVolumeState();
+            updateFullscreenState();
+            updatePipState();
+            updateBreakpoint();
+
+            // Update breakpoint on window resize
+            window.addEventListener('resize', updateBreakpoint);
+
+            // Update player state when metadata is loaded
+            video.addEventListener('loadedmetadata', () => {
+                playerContainer.classList.remove('jw-state-idle');
+                playerContainer.classList.add('jw-state-paused');
+            });
+
+            // Show controls on mouse movement
+            let hideControlsTimeout;
+            playerContainer.addEventListener('mousemove', () => {
+                playerContainer.classList.remove('jw-flag-user-inactive');
+                clearTimeout(hideControlsTimeout);
+                hideControlsTimeout = setTimeout(() => {
+                    if (!video.paused) {
+                        playerContainer.classList.add('jw-flag-user-inactive');
+                    }
+                }, 3000);
+            });
+
+            playerContainer.addEventListener('mouseleave', () => {
+                if (!video.paused) {
+                    playerContainer.classList.add('jw-flag-user-inactive');
+                }
+            });
+        }
+
+        /**
+         * Format quality label from HLS level info
+         */
+        function formatQualityLabel(level, index) {
+            let resolution = level.height;
+            let qualityName = '';
+
+            // If height not in metadata, try to extract from URL
+            if (!resolution && level.url && level.url[0]) {
+                const url = level.url[0];
+                // Extract resolution from URL patterns like /720p/, /1080p/, etc.
+                const match = url.match(/\/(\d+)p\//);
+                if (match) {
+                    resolution = parseInt(match[1]);
+                }
+            }
+
+            // If still no resolution, estimate from bitrate
+            if (!resolution && level.bitrate) {
+                const bitrate = level.bitrate / 1000; // Convert to kbps
+                if (bitrate < 300) resolution = 144;
+                else if (bitrate < 700) resolution = 240;
+                else if (bitrate < 1200) resolution = 360;
+                else if (bitrate < 2000) resolution = 480;
+                else if (bitrate < 4500) resolution = 720;
+                else if (bitrate < 10000) resolution = 1080;
+                else if (bitrate < 18000) resolution = 1440;
+                else resolution = 2160;
+            }
+
+            // Add quality descriptor
+            if (resolution) {
+                if (resolution <= 240) qualityName = 'Low';
+                else if (resolution <= 480) qualityName = 'SD';
+                else if (resolution === 720) qualityName = 'HD';
+                else if (resolution === 1080) qualityName = 'Full HD';
+                else if (resolution === 1440) qualityName = '2K';
+                else if (resolution >= 2160) qualityName = '4K UHD';
+            }
+
+            // Build label
+            const parts = [];
+            if (resolution) {
+                parts.push(`${resolution}p`);
+                if (qualityName) parts.push(qualityName);
+            } else if (level.bitrate) {
+                const kbps = Math.round(level.bitrate / 1000);
+                parts.push(`${kbps} kbps`);
+            }
+
+            return parts.length > 0 ? parts.join(' ') : `Level ${index + 1}`;
+        }
+
+        /**
+         * Wire common player events
+         */
+        function wirePlayerEvents(playerInstance) {
+            playerInstance.on('ready', handleReady);
+            playerInstance.on('play', () => console.log('▶ Video playing'));
+            playerInstance.on('pause', () => console.log('⏸ Video paused'));
+            playerInstance.on('complete', () => console.log('✓ Video completed'));
+            playerInstance.on('error', handleError);
+            playerInstance.on('playbackRateChanged', handlePlaybackRateChanged);
+            playerInstance.on('levelsChanged', handleLevelsChanged);
+        }
+
+        /**
+         * Handle player ready event
+         */
+        function handleReady() {
+            console.log('✓ Player ready');
+            updateQualitySelector();
+            updateQualityStatus();
+        }
+
+        /**
+         * Handle quality level changes
+         */
+        function handleLevelsChanged(event) {
+            console.log('Quality changed:', event);
+            updateQualityStatus();
+
+            // Update selector to reflect current quality
+            const selector = document.getElementById('quality-selector');
+            const currentQuality = player.getCurrentQuality();
+            selector.value = currentQuality === AUTO_QUALITY ? 'auto' : currentQuality;
+        }
+
+        /**
+         * Handle playback rate changes
+         */
+        function handlePlaybackRateChanged(event) {
+            const rate = event.playbackRate || 1;
+            document.getElementById('speed-status').textContent = `Speed: ${rate}x`;
+        }
+
+        /**
+         * Handle player errors
+         */
+        function handleError(event) {
+            console.error('Player error:', event);
+            alert(`Error: ${event.message || 'Unknown error occurred'}`);
+        }
+
+        /**
+         * Update quality selector dropdown
+         */
+        function updateQualitySelector() {
+            const selector = document.getElementById('quality-selector');
+            const qualities = player.getQualityLevels ? player.getQualityLevels() : [];
+
+            // Clear existing options
+            selector.innerHTML = '';
+
+            // Add Auto option for HLS.js
+            if (usingHlsJsFallback) {
+                const autoOption = document.createElement('option');
+                autoOption.value = 'auto';
+                autoOption.textContent = '🎯 Auto (Recommended)';
+                selector.appendChild(autoOption);
+            }
+
+            // Add quality options
+            qualities.forEach((quality, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `📺 ${quality.label}`;
+                selector.appendChild(option);
+            });
+
+            // Set current selection
+            const currentQuality = player.getCurrentQuality ? player.getCurrentQuality() : AUTO_QUALITY;
+            selector.value = currentQuality === AUTO_QUALITY ? 'auto' : currentQuality;
+        }
+
+        /**
+         * Update quality status display
+         */
+        function updateQualityStatus() {
+            const qualities = player.getQualityLevels ? player.getQualityLevels() : [];
+            const currentQuality = player.getCurrentQuality ? player.getCurrentQuality() : AUTO_QUALITY;
+
+            let label = 'Auto';
+            if (currentQuality !== AUTO_QUALITY && qualities[currentQuality]) {
+                label = qualities[currentQuality].label;
+            }
+
+            document.getElementById('quality-status').textContent = `Quality: ${label}`;
+        }
+
+        /**
+         * Change video quality
+         */
+        function changeQuality() {
+            const selector = document.getElementById('quality-selector');
+            const selectedValue = selector.value;
+
+            try {
+                if (selectedValue === 'auto') {
+                    player.setCurrentQuality(AUTO_QUALITY);
+                } else {
+                    const qualityIndex = parseInt(selectedValue);
+                    player.setCurrentQuality(qualityIndex);
+                }
+
+                console.log(`Quality changed to: ${selectedValue}`);
+            } catch (error) {
+                console.error('Error changing quality:', error);
+            }
+        }
+
+        /**
+         * Set playback speed
+         */
+        function setSpeed(rate, event) {
+            try {
+                player.setPlaybackRate(rate);
+
+                // Update button states
+                document.querySelectorAll('.speed-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                if (event && event.target) {
+                    event.target.classList.add('active');
+                }
+
+                console.log(`Playback speed: ${rate}x`);
+            } catch (error) {
+                console.error('Error setting playback rate:', error);
+            }
+        }
+
+        /**
+         * Show player information
+         */
+        function showPlayerInfo() {
+            const qualities = player.getQualityLevels ? player.getQualityLevels() : [];
+            const currentQuality = player.getCurrentQuality ? player.getCurrentQuality() : 'N/A';
+            const currentSpeed = player.getPlaybackRate ? player.getPlaybackRate() : 1;
+            const position = player.getPosition ? player.getPosition() : 0;
+            const duration = player.getDuration ? player.getDuration() : 0;
+            const volume = player.getVolume ? player.getVolume() : 0;
+
+            const qualityLabel = currentQuality === AUTO_QUALITY ? 'Auto' :
+                                (qualities[currentQuality]?.label || 'N/A');
+
+            const info = `
+🎬 Player Information
+━━━━━━━━━━━━━━━━━━━━
+📍 Position: ${formatTime(position)} / ${formatTime(duration)}
+⚡ Speed: ${currentSpeed}x
+🔊 Volume: ${volume}%
+📺 Quality: ${qualityLabel}
+🎯 Available: ${qualities.map(q => q.label).join(', ') || 'None'}
+🔧 Mode: ${usingHlsJsFallback ? 'HLS.js Fallback' : 'Native/JW Player'}
+            `.trim();
+
+            alert(info);
+            console.log(info);
+        }
+
+        /**
+         * Load custom video URL
+         */
+        function loadCustomVideo() {
+            const urlInput = document.getElementById('video-url');
+            const url = urlInput.value.trim();
+
+            if (!url) {
+                alert('Please enter a valid video URL');
+                return;
+            }
+
+            try {
+                // Destroy existing player
+                if (hlsInstance) {
+                    hlsInstance.destroy();
+                    hlsInstance = null;
+                }
+
+                // Re-initialize with new source
+                initPlayer(url);
+                console.log('Loading video:', url);
+            } catch (error) {
+                console.error('Error loading video:', error);
+                alert('Error loading video: ' + error.message);
+            }
+        }
+
+        /**
+         * Format time in MM:SS format
+         */
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Initialize player on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Initializing JW Player...');
+            initPlayer();
+        });
+    </script>
+</body>
+</html>
