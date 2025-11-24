@@ -144,7 +144,217 @@
             display: inline-block;
             min-width: 3em;
         }
-    </style>
+
+
+        /* Button Hover Tooltips - Only for Settings, PiP, and Fullscreen */
+        .jw-icon-settings.jw-icon-tooltip::before,
+        .jw-icon-pip.jw-icon-tooltip::before,
+        .jw-icon-fullscreen.jw-icon-tooltip::before {
+            content: attr(aria-label) !important;
+            position: absolute !important;
+            bottom: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: rgba(0, 0, 0, 0.9) !important;
+            color: #fff !important;
+            padding: 6px 12px !important;
+            border-radius: 4px !important;
+            font-size: 13px !important;
+            white-space: nowrap !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.2s, visibility 0.2s !important;
+            pointer-events: none !important;
+            z-index: 1000 !important;
+            margin-bottom: 8px !important;
+        }
+
+        .jw-icon-settings.jw-icon-tooltip::after,
+        .jw-icon-pip.jw-icon-tooltip::after,
+        .jw-icon-fullscreen.jw-icon-tooltip::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(8px) !important;
+            border: 5px solid transparent !important;
+            border-top-color: rgba(0, 0, 0, 0.9) !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.2s, visibility 0.2s !important;
+            pointer-events: none !important;
+        }
+
+        .jw-icon-settings.jw-icon-tooltip:hover::before,
+        .jw-icon-settings.jw-icon-tooltip:hover::after,
+        .jw-icon-pip.jw-icon-tooltip:hover::before,
+        .jw-icon-pip.jw-icon-tooltip:hover::after,
+        .jw-icon-fullscreen.jw-icon-tooltip:hover::before,
+        .jw-icon-fullscreen.jw-icon-tooltip:hover::after {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+
+        /* Settings Menu Tabs */
+        .jw-settings-topbar {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 0 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .jw-settings-tabs {
+            display: flex !important;
+            flex: 1 !important;
+        }
+
+        .jw-settings-tab {
+            flex: 1 !important;
+            padding: 12px 16px !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            border-bottom: 2px solid transparent !important;
+            text-align: center !important;
+        }
+
+        .jw-settings-tab:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .jw-settings-tab.active {
+            color: #fff !important;
+            border-bottom-color: #00a8ff !important;
+        }
+
+        .jw-settings-topbar-buttons {
+            padding: 8px !important;
+        }
+
+        .jw-settings-content {
+            max-height: 300px !important;
+            overflow-y: auto !important;
+        }
+
+        .jw-settings-panel {
+            display: none !important;
+        }
+
+        .jw-settings-panel.active {
+            display: block !important;
+        }
+
+        /* Vertical Volume Slider Styling */
+        .jw-icon-volume {
+            position: relative !important;
+        }
+
+        .jw-volume-slider-container {
+            position: absolute !important;
+            bottom: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: rgba(0, 0, 0, 0.9) !important;
+            border-radius: 4px !important;
+            padding: 8px !important;
+            margin-bottom: 5px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.15s, visibility 0.15s !important;
+            pointer-events: none !important;
+            z-index: 100 !important;
+        }
+
+        .jw-volume-slider-container.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: all !important;
+        }
+
+        .jw-volume-slider {
+            width: 32px !important;
+            height: 100px !important;
+            position: relative !important;
+            cursor: pointer !important;
+        }
+
+        .jw-volume-rail {
+            position: absolute !important;
+            width: 4px !important;
+            height: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-radius: 2px !important;
+        }
+
+        .jw-volume-progress {
+            position: absolute !important;
+            width: 4px !important;
+            bottom: 0 !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: #00a8ff !important;
+            border-radius: 2px !important;
+            transition: height 0.1s !important;
+        }
+
+        .jw-volume-knob {
+            position: absolute !important;
+            width: 12px !important;
+            height: 12px !important;
+            background: #fff !important;
+            border-radius: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, 50%) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            transition: bottom 0.1s !important;
+        }
+
+    
+        /* Modern Scrollbar Styling for Settings Menu */
+        .jw-settings-content::-webkit-scrollbar {
+            width: 6px !important;
+        }
+
+        .jw-settings-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-radius: 3px !important;
+        }
+
+        .jw-settings-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-radius: 3px !important;
+            transition: background 0.2s !important;
+        }
+
+        .jw-settings-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* Firefox scrollbar styling */
+        .jw-settings-content {
+            scrollbar-width: thin !important;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05) !important;
+        }
+        /* Tab Icon Styling */
+        .jw-settings-tab svg {
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        .jw-settings-tab {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+</style>
 
     <style>
         * {
@@ -570,6 +780,14 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-volume-100" viewBox="0 0 240 240" focusable="false" style="display:none;">
                                             <path d="M116.5,42.8v154.4c0,2.8-2.2,5-5,5c-1.2,0-2.3-0.4-3.2-1.1L71.8,170c-0.8-0.6-1.8-1-2.8-1H35.6c-2.8,0-5-2.2-5-5V76c0-2.8,2.2-5,5-5H69c1,0,2-0.3,2.8-1l36.4-31.2c1.8-1.5,4.4-1.3,5.9,0.5C115,40.1,116.5,41.4,116.5,42.8z M136.2,160v-20.6c11.4,0,20.6-9.2,20.6-20.6c0-11.4-9.2-20.6-20.6-20.6V77.6c22.7,0,41.2,18.5,41.2,41.2C177.4,141.5,158.9,160,136.2,160z M136.2,200v-20.6c33.9,0,61.4-27.5,61.4-61.4c0-33.9-27.5-61.4-61.4-61.4V35.9c45.1,0,81.8,36.7,81.8,81.8C218,162.8,181.3,199.5,136.2,200z"></path>
                                         </svg>
+                                        <!-- Vertical Volume Slider -->
+                                        <div class="jw-volume-slider-container jw-reset">
+                                            <div class="jw-volume-slider jw-reset">
+                                                <div class="jw-volume-rail jw-reset"></div>
+                                                <div class="jw-volume-progress jw-reset" style="height:100%"></div>
+                                                <div class="jw-volume-knob jw-reset" style="bottom:100%"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="jw-text jw-reset jw-text-elapsed" role="timer" aria-live="off">
                                         <span class="jw-text-countdown">0:00</span>
@@ -592,8 +810,8 @@
                                         </svg>
                                     </div>
                                     <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-fullscreen jw-icon-tooltip" role="button" tabindex="0" aria-label="Fullscreen">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-fullscreen-on" viewBox="0 0 240 240" focusable="false">
-                                            <path d="M96.3,186.1c1.9,0,3.8,0.8,5.1,2.2l0,0c2.7,3,2.7,7.6,0,10.6c-1.4,1.4-3.2,2.2-5.1,2.2H65.6c-4,0-7.3-3.3-7.3-7.3v-30.7c0-4,3.3-7.3,7.3-7.3c4,0,7.3,3.3,7.3,7.3v21.7l32.6-32.6c1.5-1.3,3.4-2,5.4-2c4,0,7.3,3.3,7.3,7.3c0,2-0.8,3.9-2.2,5.3l-32.4,32.4H96.3z M189.7,38.2v30.7c0,4-3.3,7.3-7.3,7.3c-4,0-7.3-3.3-7.3-7.3V47.1l-32.6,32.6c-1.4,1.4-3.3,2.2-5.3,2.2c-4,0-7.3-3.3-7.3-7.3c0-2,0.8-3.9,2-5.4l32.6-32.6H143c-4,0-7.3-3.3-7.3-7.3c0-4,3.3-7.3,7.3-7.3h31.4c1.9,0,3.8,0.8,5.1,2.2c2.5,2.5,3.1,6.4,1.5,9.6C191,34.5,191,36.4,189.7,38.2L189.7,38.2z M189.7,201.8c0,4-3.3,7.3-7.3,7.3h-30.7c-4,0-7.3-3.3-7.3-7.3c0-4,3.3-7.3,7.3-7.3H173l-32.6-32.6c-2.8-2.9-2.8-7.4,0.1-10.2c1.4-1.4,3.3-2.1,5.2-2.1c2,0,3.9,0.8,5.3,2.2l32.6,32.6v-21.7c0-4,3.3-7.3,7.3-7.3c4,0,7.3,3.3,7.3,7.3V201.8z M96.3,38.2c0-4-3.3-7.3-7.3-7.3c-4,0-7.3,3.3-7.3,7.3v21.7L49.1,27.3c-2.9-2.8-7.4-2.8-10.2,0.1c-1.3,1.4-2.1,3.3-2.1,5.2c0,2,0.8,3.9,2.2,5.3l32.6,32.6H50.2c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3h30.7c4,0,7.3-3.3,7.3-7.3V38.2H96.3z"></path>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-fullscreen-on" viewBox="0 0 24 24" focusable="false">
+                                            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"></path>
                                         </svg>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-fullscreen-off" viewBox="0 0 240 240" focusable="false" style="display:none;">
                                             <path d="M109.2,134.9l-8.4,50.1c-0.4,2.7-2.4,3.3-4.4,1.3L82,171.8l-17.5,17.5c-1.4,1.4-3.8,1.4-5.3,0l-8.4-8.4c-1.4-1.4-1.4-3.8,0-5.3l17.5-17.5l-14.4-14.4c-2-2-1.4-4,1.3-4.4l50.1-8.4c0.9-0.1,1.7,0.2,2.3,0.7C109,132.2,109.4,133.8,109.2,134.9z M192.3,47.7c1.4,1.4,1.4,3.8,0,5.3l-17.5,17.5l14.4,14.4c2,2,1.4,4-1.3,4.4l-50.1,8.4c-0.9,0.1-1.7-0.2-2.3-0.7c-1.4-1.4-1.8-3-1.6-4.1l8.4-50.1c0.4-2.7,2.4-3.3,4.4-1.3L161,55.8l17.5-17.5c1.4-1.4,3.8-1.4,5.3,0L192.3,47.7z M189.7,192.3l-8.4-8.4c-1.4-1.4-3.8-1.4-5.3,0l-17.5,17.5l-14.4-14.4c-2-2-4-1.4-4.4,1.3l-8.4,50.1c-0.1,0.9,0.2,1.7,0.7,2.3c1.4,1.4,3,1.8,4.1,1.6l50.1-8.4c2.7-0.4,3.3-2.4,1.3-4.4L173,215.1l17.5-17.5C191.9,196.2,191.9,193.8,189.7,192.3z M47.7,47.7l8.4,8.4c1.4,1.4,3.8,1.4,5.3,0l17.5-17.5l14.4,14.4c2,2,4,1.4,4.4-1.3l8.4-50.1c0.1-0.9-0.2-1.7-0.7-2.3c-1.4-1.4-3-1.8-4.1-1.6L51.2,6.1c-2.7,0.4-3.3,2.4-1.3,4.4L64.3,24.9L46.8,42.4C45.4,43.8,45.4,46.2,47.7,47.7z"></path>
@@ -603,7 +821,10 @@
                             </div>
                             <div class="jw-settings-menu jw-reset" style="display:none;">
                                 <div class="jw-settings-topbar jw-reset">
-                                    <div class="jw-settings-topbar-text jw-reset">Settings</div>
+                                    <div class="jw-settings-tabs jw-reset">
+                                        <div class="jw-settings-tab jw-settings-tab-quality active" data-tab="quality" role="button" tabindex="0">Quality</div>
+                                        <div class="jw-settings-tab jw-settings-tab-speed" data-tab="speed" role="button" tabindex="0">Playback Speed</div>
+                                    </div>
                                     <div class="jw-settings-topbar-buttons jw-reset">
                                         <div class="jw-icon jw-icon-inline jw-button-color jw-reset jw-settings-close" role="button" tabindex="0" aria-label="Close">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon" viewBox="0 0 240 240" focusable="false">
@@ -612,10 +833,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="jw-settings-section-header jw-reset" style="padding:8px 16px;color:#888;font-size:11px;text-transform:uppercase;font-weight:600;">Quality</div>
-                                <div class="jw-settings-submenu jw-settings-submenu-quality jw-reset"></div>
-                                <div class="jw-settings-section-header jw-reset" style="padding:8px 16px;color:#888;font-size:11px;text-transform:uppercase;font-weight:600;border-top:1px solid rgba(255,255,255,0.1);">Playback Speed</div>
-                                <div class="jw-settings-submenu jw-settings-submenu-speed jw-reset"></div>
+                                <div class="jw-settings-content jw-reset">
+                                    <div class="jw-settings-panel jw-settings-panel-quality active" data-panel="quality">
+                                        <div class="jw-settings-submenu jw-settings-submenu-quality jw-reset"></div>
+                                    </div>
+                                    <div class="jw-settings-panel jw-settings-panel-speed" data-panel="speed" style="display:none;">
+                                        <div class="jw-settings-submenu jw-settings-submenu-speed jw-reset"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -631,6 +856,7 @@
 
             hlsInstance = hls;
             const eventListeners = {};
+            let userSelectedQuality = -1; // Track user's manual quality selection (-1 = Auto)
 
             function emit(eventName, data = {}) {
                 (eventListeners[eventName] || []).forEach(cb => cb(data));
@@ -1009,6 +1235,7 @@
                     </div>
                 `;
                 autoItem.addEventListener('click', () => {
+                    userSelectedQuality = -1;
                     hls.currentLevel = -1;
                     updateQualityMenuSelection();
                     toggleSettingsMenu();
@@ -1032,6 +1259,7 @@
                         </div>
                     `;
                     item.addEventListener('click', () => {
+                        userSelectedQuality = index;
                         hls.currentLevel = index;
                         updateQualityMenuSelection();
                         toggleSettingsMenu();
@@ -1045,7 +1273,8 @@
                 items.forEach(item => {
                     const quality = parseInt(item.getAttribute('data-quality'));
                     const activeIndicator = item.querySelector('.jw-settings-item-active');
-                    if (quality === hls.currentLevel) {
+                    // Use userSelectedQuality instead of hls.currentLevel to show what user selected
+                    if (quality === userSelectedQuality) {
                         activeIndicator.style.display = 'block';
                     } else {
                         activeIndicator.style.display = 'none';
@@ -1091,6 +1320,38 @@
                 playerContainer.classList.add(breakpoint);
             }
 
+
+            // ===============================================
+            // Settings Menu Tab Switching
+            // ===============================================
+            const settingsTabs = playerContainer.querySelectorAll('.jw-settings-tab');
+            const settingsPanels = playerContainer.querySelectorAll('.jw-settings-panel');
+
+            settingsTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    settingsTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Hide all panels
+                    settingsPanels.forEach(panel => {
+                        panel.classList.remove('active');
+                        panel.style.display = 'none';
+                    });
+                    
+                    // Show selected panel
+                    const selectedPanel = playerContainer.querySelector(`.jw-settings-panel-${tabName}`);
+                    if (selectedPanel) {
+                        selectedPanel.classList.add('active');
+                        selectedPanel.style.display = 'block';
+                    }
+                });
+            });
+
             // Initialize states
             updatePlayState();
             updateVolumeState();
@@ -1124,6 +1385,163 @@
                     playerContainer.classList.add('jw-flag-user-inactive');
                 }
             });
+
+            // ===============================================
+            // Video click to play/pause
+            // ===============================================
+            video.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+
+            // ===============================================
+            // Keyboard Controls
+            // ===============================================
+            document.addEventListener('keydown', (e) => {
+                // Ignore if user is typing in an input field
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+
+                switch(e.key) {
+                    case ' ':
+                    case 'Spacebar': // For older browsers
+                        e.preventDefault();
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                        break;
+
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        // Seek backward 5 seconds
+                        video.currentTime = Math.max(0, video.currentTime - 5);
+                        break;
+
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        // Seek forward 5 seconds
+                        video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
+                        break;
+
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        // Increase volume by 10%
+                        video.volume = Math.min(1, video.volume + 0.1);
+                        video.muted = false;
+                        updateVolumeState();
+                        updateVolumeSlider();
+                        break;
+
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        // Decrease volume by 10%
+                        video.volume = Math.max(0, video.volume - 0.1);
+                        updateVolumeState();
+                        updateVolumeSlider();
+                        break;
+                }
+            });
+
+            // ===============================================
+            // Volume Slider Functionality
+            // ===============================================
+            const volumeSliderContainer = playerContainer.querySelector('.jw-volume-slider-container');
+            const volumeSlider = playerContainer.querySelector('.jw-volume-slider');
+            const volumeProgress = playerContainer.querySelector('.jw-volume-progress');
+            const volumeKnob = playerContainer.querySelector('.jw-volume-knob');
+
+            // Update volume slider visual state
+            function updateVolumeSlider() {
+                const volume = video.muted ? 0 : video.volume;
+                const heightPercent = volume * 100;
+                volumeProgress.style.height = heightPercent + '%';
+                volumeKnob.style.bottom = heightPercent + '%';
+            }
+
+            // Set volume from slider position
+            function setVolumeFromSlider(event) {
+                const rect = volumeSlider.getBoundingClientRect();
+                const y = event.clientY - rect.top;
+                const height = rect.height;
+                // Invert Y because slider goes from bottom to top
+                // Click at top (y=0) should be 100%, click at bottom (y=height) should be 0%
+                const volume = Math.max(0, Math.min(1, 1 - (y / height)));
+                
+                if (!isNaN(volume) && isFinite(volume)) {
+                    video.volume = volume;
+                    if (volume > 0) {
+                        video.muted = false;
+                    }
+                    updateVolumeState();
+                    updateVolumeSlider();
+                }
+            }
+
+            // Volume slider drag handling
+            let isVolumeDragging = false;
+
+            volumeSlider.addEventListener('mousedown', (e) => {
+                isVolumeDragging = true;
+                setVolumeFromSlider(e);
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            volumeSlider.addEventListener('click', (e) => {
+                setVolumeFromSlider(e);
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isVolumeDragging) {
+                    setVolumeFromSlider(e);
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isVolumeDragging) {
+                    isVolumeDragging = false;
+                }
+            });
+
+            // Update volume slider when volume changes
+            video.addEventListener('volumechange', updateVolumeSlider);
+
+            // Initialize volume slider
+            updateVolumeSlider();
+
+            // ===============================================
+            // Volume Slider Show/Hide with Smooth Transition
+            // ===============================================
+            let volumeSliderTimeout;
+
+            function showVolumeSlider() {
+                clearTimeout(volumeSliderTimeout);
+                volumeSliderContainer.classList.add('show');
+            }
+
+            function hideVolumeSlider() {
+                volumeSliderTimeout = setTimeout(() => {
+                    volumeSliderContainer.classList.remove('show');
+                }, 200);
+            }
+
+            // Show slider when hovering over volume button
+            volumeButton.addEventListener('mouseenter', showVolumeSlider);
+            volumeButton.addEventListener('mouseleave', hideVolumeSlider);
+
+            // Keep slider visible when hovering over it
+            volumeSliderContainer.addEventListener('mouseenter', showVolumeSlider);
+            volumeSliderContainer.addEventListener('mouseleave', hideVolumeSlider);
+
         }
 
         /**
